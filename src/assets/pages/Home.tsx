@@ -9,13 +9,23 @@ import { motion } from "motion/react";
 import logo from "../img/logo.svg";
 import CircularProgress from "@mui/material/CircularProgress";
 import { IoMdSearch } from "react-icons/io";
+import MovieGrid from "../components/MovieGrid";
+import TVGrid from "../components/TVGrid";
+
 const Home = () => {
   const [query, setQuery] = useState("");
   const theme = useTheme();
-
+  const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [component, setComponent] = useState<"movie" | "tv">("movie");
+  // search hook
   const { results, error, isLoading } = useSearch(query);
 
-  const [openErrorModal, setOpenErrorModal] = useState(false);
+  const handlePageChange = (newComp: "movie" | "tv") => {
+    if (newComp === component) {
+      return;
+    }
+    setComponent(newComp);
+  };
 
   useEffect(() => {
     if (!error) {
@@ -35,6 +45,7 @@ const Home = () => {
         color: "text.white",
       }}
     >
+      {/* header */}
       <Box
         component={"header"}
         sx={{
@@ -87,8 +98,94 @@ const Home = () => {
             setQuery={setQuery}
             isLoading={isLoading}
             results={results}
+            query={query}
           />
         </Stack>
+      </Box>
+
+      {/* main */}
+      <Box
+        component={"main"}
+        sx={{ width: "100%", minHeight: "100vh", overflowX: "hidden" }}
+      >
+        {/* first section */}
+        <Box component={"section"} sx={{ display: "none" }}>
+          {/* stack - row */}
+          {/* 1st component : automatic slider showing top rated movies */}
+          {/* 2nd component : randomizer div showing upcoming movies, upon every re-render it should randomize again */}
+        </Box>
+        <Box
+          component={"section"}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          {/* AnimatePresence component to move between discovering movies and TVshows component
+              The idea:: since it's a SPA, i don't want to have 2 separate components stacking on top of each other and then pagination logic for both
+              so i want to implement a kind of infinite scroll to help the UX, so the user doesn't actually have to click next page every time for the app to get more movies
+              To achieve this, i'm thinking of using a kind of logic you usually see in login/signup SPA's or mobile apps, where you can just switch between
+              forms in the same component, with a snappy animation to make it look sharp 
+          */}
+          <Stack
+            direction={"row"}
+            spacing={1.5}
+            sx={{
+              alignItems: "center",
+              justifyContent: "center",
+              py: 2,
+              color: "primary.main",
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{
+                cursor: "pointer",
+                position: "relative",
+                width: "auto",
+                textAlign: "center",
+                "::before": {
+                  position: "absolute",
+                  top: "110%",
+                  width: "50%",
+                  backgroundColor: "primary.main",
+                  height: "2px",
+                  content: "''",
+                  left: "50%",
+                  transform: "translate(-50%, -110%)",
+                  display: component == "movie" ? "block" : "none",
+                },
+              }}
+              onClick={() => handlePageChange("movie")}
+            >
+              Movie
+            </Typography>
+            <Typography
+              variant="h4"
+              sx={{
+                cursor: "pointer",
+                position: "relative",
+                width: "auto",
+                textAlign: "center",
+                "::before": {
+                  position: "absolute",
+                  top: "110%",
+                  width: "50%",
+                  backgroundColor: "primary.main",
+                  height: "2px",
+                  content: "''",
+                  left: "50%",
+                  transform: "translate(-50%, -110%)",
+                  display: component == "movie" ? "none" : "block",
+                },
+              }}
+              onClick={() => handlePageChange("tv")}
+            >
+              TV
+            </Typography>
+          </Stack>
+          {/* Movie Grid component */}
+          <MovieGrid />
+          {/* TV Grid Component */}
+          <TVGrid />
+        </Box>
       </Box>
       {/* error modal */}
       <Snackbar
@@ -109,6 +206,7 @@ const Home = () => {
   );
 };
 
+// search bar
 interface SearchProps {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
@@ -129,6 +227,7 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
           alignItems: "center",
           justifyContent: "end",
           overflow: "visible",
+          zIndex: 100,
         }}
       >
         <Box
@@ -181,7 +280,7 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
               width: { xs: "120%", sm: "98.5%", lg: "98%" },
               height: "300px",
               maxHeight: "300px",
-              backgroundColor: "#111111e6",
+              backgroundColor: "#111111",
               borderRadius: { xs: 0.5, sm: 0 },
               padding: 1,
               overflowY: "auto",
@@ -190,9 +289,9 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
               flexDirection: "column",
               gap: 1,
             }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeIn" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, ease: "easeIn", delay: 1 }}
           >
             {results.length != 0 &&
               results.map((film, index) => (
@@ -204,6 +303,7 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
     </>
   );
 };
+
 // search card, single card for each index of the results array
 interface SearchCardProps {
   film: SearchResult;

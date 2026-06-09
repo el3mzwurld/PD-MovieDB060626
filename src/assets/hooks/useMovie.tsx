@@ -53,6 +53,7 @@ export const useMovie = () => {
     }
     const genreID = selectedGenre.id;
     fetchByGenre(genreID);
+    console.log(selectedGenre);
   }, [selectedGenre]);
 
   const loadMore = async () => {
