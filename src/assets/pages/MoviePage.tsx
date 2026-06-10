@@ -42,6 +42,7 @@ const MoviePage = () => {
         width: "100%",
         height: "100vh",
         backgroundColor: theme.palette.primary.dark,
+        pb: 1.5,
       }}
     >
       <Box
