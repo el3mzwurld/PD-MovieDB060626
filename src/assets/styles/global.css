@@ -35,3 +35,35 @@ body {
     background: rgba(100, 100, 100, 0.7);
   }
 }
+
+/* * {
+  scrollbar-width: thin;
+  scrollbar-color: gray;
+} */
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 30%;
+}
+
+/* the track itself */
+*::-webkit-scrollbar-track {
+  background: none;
+  border-radius: 0px;
+  opacity: 0;
+}
+
+/* the draggable thumb */
+*::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 0px;
+  height: 30%;
+}
+
+/* thumb on hover */
+*::-webkit-scrollbar-thumb:hover {
+  background: #212121;
+  cursor: grabbing;
+}
+
+/* the corner where vertical and horizontal scrollbars meet */

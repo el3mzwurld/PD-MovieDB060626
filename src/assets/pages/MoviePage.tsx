@@ -55,6 +55,7 @@ const MoviePage = () => {
           fontSize: { xs: 10, lg: 12 },
           color: "white",
           p: { xs: 1.5, md: 2 },
+          cursor: "pointer",
         }}
       >
         <span onClick={() => navigate(-1)}>{`<`} Go back</span>
