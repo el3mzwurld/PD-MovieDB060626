@@ -46,7 +46,6 @@ const theme = createTheme({
       primary: "#1A1A1A",
       secondary: "#040404",
       disabled: "#9CA3AF",
-      white: "#ffffff",
     },
     divider: "#a5b70e",
     action: {

@@ -35,7 +35,7 @@ const Home = () => {
         height: "100vh",
         minHeight: "100vh",
         overflow: "auto",
-        color: "text.white",
+        color: "white",
       }}
     >
       {/* header */}
