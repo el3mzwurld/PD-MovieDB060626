@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSearch } from "../hooks/useSearch";
 import { Box, Snackbar, Stack, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material";
-import type { SearchResult } from "../types/appTypes";
+import type { Movie, SearchResult, TVShow } from "../types/appTypes";
 import { AnimatePresence, motion } from "motion/react";
 
 // image and icon imports
@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const [query, setQuery] = useState("");
   const theme = useTheme();
-  const [openErrorModal, setOpenErrorModal] = useState(false);
   const [component, setComponent] = useState<"movie" | "tv">("movie");
   // search hook
   const { results, error, isLoading } = useSearch(query);
@@ -27,13 +26,6 @@ const Home = () => {
     }
     setComponent(newComp);
   };
-
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-    setOpenErrorModal((prev) => !prev);
-  }, [error]);
 
   return (
     <Box
@@ -104,7 +96,6 @@ const Home = () => {
         </Stack>
       </Box>
 
-      {/* main */}
       <Box
         component={"main"}
         sx={{ width: "100%", minHeight: "100vh", overflowX: "hidden" }}
@@ -188,9 +179,9 @@ const Home = () => {
               <Box
                 component={motion.div}
                 sx={{ height: "auto", width: "100%" }}
-                initial={{ opacity: 0, x: 60 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -60 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 1, ease: "easeInOut" }}
               >
                 <MovieGrid />
@@ -199,9 +190,9 @@ const Home = () => {
               <Box
                 component={motion.div}
                 sx={{ height: "auto", width: "100%" }}
-                initial={{ opacity: 0, x: -120 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -60 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 1, ease: "easeInOut" }}
               >
                 <TVGrid />
@@ -210,21 +201,18 @@ const Home = () => {
           </AnimatePresence>
         </Box>
       </Box>
-      {/* error modal */}
-      <Snackbar
-        open={openErrorModal}
-        autoHideDuration={4000}
-        onClose={() => setOpenErrorModal(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setOpenErrorModal(false)}
-          severity="error"
-          variant="filled"
+      {/* error toast modal */}
+      {error && (
+        <Snackbar
+          open={true}
+          autoHideDuration={3500}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         >
-          {error}
-        </Alert>
-      </Snackbar>
+          <Alert severity="error" variant="filled">
+            {error}
+          </Alert>
+        </Snackbar>
+      )}
     </Box>
   );
 };
@@ -240,8 +228,12 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const handleNavigate = (movie_id: number) => {
-    navigate(`/movie/${movie_id}`, { state: { id: movie_id } });
+  const handleNavigate = (film_id: number, filmType: "movie" | "tv") => {
+    if (filmType === "movie") {
+      navigate(`/movie/${film_id}`, { state: { id: film_id } });
+      return;
+    }
+    navigate(`/tv/${film_id}`, { state: { id: film_id } });
   };
   return (
     <>
@@ -339,13 +331,17 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
 // search card, single card for each index of the results array
 interface SearchCardProps {
   film: SearchResult;
-  handleNav: (id: number) => void;
+  handleNav: (id: number, type: "movie" | "tv") => void;
 }
 
 const SearchCard = ({ film, handleNav }: SearchCardProps) => {
-  const title = film.media_type === "movie" ? film.title : film.name;
+  const title =
+    film.media_type === "movie" ? (film as Movie).title : (film as TVShow).name;
   const release =
-    film.media_type === "movie" ? film.release_date : film.first_air_date;
+    film.media_type === "movie"
+      ? (film as Movie).release_date
+      : (film as TVShow).first_air_date;
+
   return (
     <Stack
       direction={"row"}
@@ -358,7 +354,12 @@ const SearchCard = ({ film, handleNav }: SearchCardProps) => {
         height: { xs: "160px", lg: "150px" },
         flexShrink: 0,
       }}
-      onClick={() => handleNav(film.id)}
+      onClick={() => {
+        if (film.media_type === "person") {
+          return;
+        }
+        handleNav(film.id, film.media_type);
+      }}
     >
       <Box
         component={"img"}

@@ -23,7 +23,6 @@ export const useTVDetails = (tvID: number) => {
       setIsLoading(false);
     }
   };
-  // fetch when there's a tvID passed, which basically means the user has clicked a TV show card.
   useEffect(() => {
     fetchDetails(tvID);
   }, [tvID]);

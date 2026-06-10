@@ -8,7 +8,7 @@ import { format } from "date-fns";
 const MoviePage = () => {
   const { id } = useParams();
   const theme = useTheme();
-  const { details, isLoading, error } = useMovieDetails(Number(id));
+  const { details } = useMovieDetails(Number(id));
   const navigate = useNavigate();
   const [trailer, setTrailer] = useState<Video | null>(null);
 

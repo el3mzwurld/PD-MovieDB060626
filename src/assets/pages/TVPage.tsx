@@ -127,8 +127,8 @@ const TVPage = () => {
                   fontSize: "12px",
                 }}
               >
-                <Typography variant="caption">Title</Typography>
-                {details?.title}
+                <Typography variant="caption">Title:</Typography>
+                {details ? details.name : "N/A"}
               </span>
 
               <span
@@ -139,7 +139,7 @@ const TVPage = () => {
                   fontSize: "12px",
                 }}
               >
-                <Typography variant="caption">Release Date</Typography>
+                <Typography variant="caption">Release Date:</Typography>
                 {formattedDate}
               </span>
 
@@ -151,8 +151,8 @@ const TVPage = () => {
                   fontSize: "12px",
                 }}
               >
-                <Typography variant="caption">Runtime</Typography>
-                {details?.runtime ? `${details.runtime} minutes` : "N/A"}
+                <Typography variant="caption">Seasons :</Typography>
+                {details ? `${details.number_of_seasons} Seasons` : "N/A"}
               </span>
 
               <span
@@ -163,7 +163,7 @@ const TVPage = () => {
                   fontSize: "12px",
                 }}
               >
-                <Typography variant="caption">Rating</Typography>
+                <Typography variant="caption">Rating :</Typography>
                 {details?.vote_average
                   ? `${details.vote_average} / 10 on TMDb`
                   : "N/A"}

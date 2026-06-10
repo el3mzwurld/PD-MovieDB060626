@@ -5,7 +5,7 @@ import type { TVShow } from "../types/appTypes";
 import { format } from "date-fns";
 import Genres from "./genre";
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const TVGrid = () => {
@@ -13,7 +13,6 @@ const TVGrid = () => {
     selectedGenre,
     setSelectedGenre,
     results,
-    error,
     currentPage,
     totalPages,
     loadMore,

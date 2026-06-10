@@ -11,7 +11,6 @@ const MovieGrid = () => {
     selectedGenre,
     setSelectedGenre,
     results,
-    error,
     currentPage,
     totalPages,
     loadMore,
