@@ -3,7 +3,7 @@ import { useSearch } from "../hooks/useSearch";
 import { Box, Snackbar, Stack, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material";
 import type { SearchResult } from "../types/appTypes";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 // image and icon imports
 import logo from "../img/logo.svg";
@@ -11,6 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { IoMdSearch } from "react-icons/io";
 import MovieGrid from "../components/MovieGrid";
 import TVGrid from "../components/TVGrid";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [query, setQuery] = useState("");
@@ -181,10 +182,32 @@ const Home = () => {
               TV
             </Typography>
           </Stack>
-          {/* Movie Grid component */}
-          <MovieGrid />
-          {/* TV Grid Component */}
-          <TVGrid />
+
+          <AnimatePresence mode="wait">
+            {component === "movie" ? (
+              <Box
+                component={motion.div}
+                sx={{ height: "auto", width: "100%" }}
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              >
+                <MovieGrid />
+              </Box>
+            ) : (
+              <Box
+                component={motion.div}
+                sx={{ height: "auto", width: "100%" }}
+                initial={{ opacity: 0, x: -120 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+              >
+                <TVGrid />
+              </Box>
+            )}
+          </AnimatePresence>
         </Box>
       </Box>
       {/* error modal */}
@@ -215,6 +238,11 @@ interface SearchProps {
 }
 const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+
+  const handleNavigate = (movie_id: number) => {
+    navigate(`/movie/${movie_id}`, { state: { id: movie_id } });
+  };
   return (
     <>
       <Stack
@@ -295,7 +323,11 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
           >
             {results.length != 0 &&
               results.map((film, index) => (
-                <SearchCard film={film} key={index} />
+                <SearchCard
+                  film={film}
+                  key={index}
+                  handleNav={handleNavigate}
+                />
               ))}
           </Box>
         ) : null}
@@ -307,9 +339,10 @@ const SearchBar = ({ setQuery, isLoading, results, query }: SearchProps) => {
 // search card, single card for each index of the results array
 interface SearchCardProps {
   film: SearchResult;
+  handleNav: (id: number) => void;
 }
 
-const SearchCard = ({ film }: SearchCardProps) => {
+const SearchCard = ({ film, handleNav }: SearchCardProps) => {
   const title = film.media_type === "movie" ? film.title : film.name;
   const release =
     film.media_type === "movie" ? film.release_date : film.first_air_date;
@@ -325,6 +358,7 @@ const SearchCard = ({ film }: SearchCardProps) => {
         height: { xs: "160px", lg: "150px" },
         flexShrink: 0,
       }}
+      onClick={() => handleNav(film.id)}
     >
       <Box
         component={"img"}

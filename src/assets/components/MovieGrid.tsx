@@ -1,20 +1,50 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Genres from "./genre";
 import { useMovie } from "../hooks/useMovie";
 import type { Movie } from "../types/appTypes";
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 const MovieGrid = () => {
   const {
+    selectedGenre,
     setSelectedGenre,
     results,
-    isLoading,
     error,
-    loadMore,
-    selectedGenre,
     currentPage,
     totalPages,
+    loadMore,
+    isLoading,
   } = useMovie();
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (movie_id: number) => {
+    navigate(`/movie/${movie_id}`, { state: { id: movie_id } });
+  };
+  const observerRef = useRef<HTMLDivElement>(null);
+  const PAGE_LIMIT = 6;
+  useEffect(() => {
+    //   watch the bottom div in the component to know when it enters the viewport
+    //   logic to add :: tuesday - logic to re-render the grid once current Page >= page limit
+    const watcher = new IntersectionObserver((entries) => {
+      if (
+        entries[0].isIntersecting &&
+        !isLoading &&
+        currentPage < totalPages &&
+        currentPage < PAGE_LIMIT
+      ) {
+        setTimeout(() => {
+          loadMore();
+        }, 700);
+      }
+    });
+
+    if (observerRef.current) watcher.observe(observerRef.current);
+
+    return () => watcher.disconnect();
+  }, [currentPage, loadMore, isLoading]);
   return (
     <Stack
       sx={{
@@ -30,27 +60,37 @@ const MovieGrid = () => {
           ? `Discover ${selectedGenre.name} Movies`
           : "Discover Movies"}
       </Typography>
-      <Genres setGenre={setSelectedGenre} filmType="tv" />
+      <Genres setGenre={setSelectedGenre} filmType="movie" />
 
-      <GridActual results={results} />
+      <GridActual results={results} navToMovie={handleNavigate} />
+      <Box
+        ref={observerRef}
+        sx={{
+          width: "100%",
+          height: "100px",
+          maxHeight: "20px",
+          color: "black",
+          display: "flex",
+          justifyContent: "center",
+          padding: 2,
+        }}
+      >
+        {isLoading && <CircularProgress size={20} />}
+      </Box>
     </Stack>
   );
 };
 
 interface GridProps {
   results: Movie[];
+  navToMovie: (id: number) => void;
 }
-const GridActual = ({ results }: GridProps) => {
+const GridActual = ({ results, navToMovie }: GridProps) => {
   return (
-    <Grid
-      container
-      spacing={{ xs: 3, sm: 2.5, lg: 3 }}
-      sx={{ px: 2 }}
-      columns={{ lg: 5 }}
-    >
+    <Grid container spacing={{ xs: 3, sm: 2.5, lg: 3 }} sx={{ px: 2 }}>
       {results.map((movie) => (
         <Grid
-          size={{ xs: 6, sm: 4, md: 3, lg: 1 }}
+          size={{ xs: 6, sm: 4, md: 3, lg: 2 }}
           key={movie.id}
           sx={{
             color: "primary.main",
@@ -58,7 +98,7 @@ const GridActual = ({ results }: GridProps) => {
             alignItems: "center",
           }}
         >
-          <MovieCard film={movie}></MovieCard>
+          <MovieCard film={movie} handleNav={navToMovie}></MovieCard>
         </Grid>
       ))}
     </Grid>
@@ -67,21 +107,27 @@ const GridActual = ({ results }: GridProps) => {
 
 interface MovieCardProps {
   film: Movie;
+  handleNav: (id: number) => void;
 }
 
-const MovieCard = ({ film }: MovieCardProps) => {
+const MovieCard = ({ film, handleNav }: MovieCardProps) => {
   const formattedDate = film.release_date
     ? format(new Date(film.release_date), "MMMM dd, yyyy")
     : "TBA";
   return (
     <Stack
-      sx={{ width: "85%", height: { xs: "280px" }, alignItems: "start" }}
+      sx={{
+        width: { xs: "100%", lg: "90%" },
+        height: { xs: "280px" },
+        alignItems: "start",
+      }}
       spacing={1.2}
     >
       <Box
         component={"img"}
         sx={{ width: "100%", height: "205px", borderRadius: 0.8 }}
         src={`https://image.tmdb.org/t/p/w780/${film.poster_path}`}
+        onClick={() => handleNav(film.id)}
       ></Box>
 
       {/* info */}

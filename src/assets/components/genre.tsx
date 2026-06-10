@@ -10,12 +10,12 @@ interface GenreProps {
 
 const Genres = ({ setGenre, filmType }: GenreProps) => {
   const [genreList, setGenreList] = useState<Array<Genre>>([]);
-
   useEffect(() => {
     if (filmType === "movie") {
       setGenreList(genres);
       return;
     }
+
     setGenreList(tvGenres);
   }, [filmType]);
 

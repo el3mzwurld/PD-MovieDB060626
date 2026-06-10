@@ -1,11 +1,12 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useTV } from "../hooks/useTV";
 import type { TVShow } from "../types/appTypes";
 import { format } from "date-fns";
 import Genres from "./genre";
 import { motion } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TVGrid = () => {
   const {
@@ -15,8 +16,36 @@ const TVGrid = () => {
     error,
     currentPage,
     totalPages,
+    loadMore,
+    isLoading,
   } = useTV();
   const observerRef = useRef<HTMLDivElement>(null);
+  const PAGE_LIMIT = 6;
+  useEffect(() => {
+    //   watch the bottom div in the component to know when it enters the viewport
+    //   logic to add :: tuesday - logic to re-render the grid once current Page >= page limit
+    const watcher = new IntersectionObserver((entries) => {
+      if (
+        entries[0].isIntersecting &&
+        !isLoading &&
+        currentPage < totalPages &&
+        currentPage < PAGE_LIMIT
+      ) {
+        setTimeout(() => {
+          loadMore();
+        }, 700);
+      }
+    });
+
+    if (observerRef.current) watcher.observe(observerRef.current);
+
+    return () => watcher.disconnect();
+  }, [currentPage, loadMore, isLoading]);
+
+  const navigate = useNavigate();
+  const handleNavigate = (movie_id: number) => {
+    navigate(`/movie/${movie_id}`);
+  };
   return (
     <Stack
       sx={{
@@ -41,28 +70,46 @@ const TVGrid = () => {
       </Typography>
       <Genres setGenre={setSelectedGenre} filmType="tv" />
 
-      <GridActual results={results} />
+      <GridActual results={results} handleNav={handleNavigate} />
 
-      <Box></Box>
+      <Box
+        ref={observerRef}
+        sx={{
+          width: "100%",
+          height: "100px",
+          maxHeight: "20px",
+          color: "black",
+          display: "flex",
+          justifyContent: "center",
+          padding: 2,
+        }}
+      >
+        {isLoading && <CircularProgress size={20} />}
+      </Box>
     </Stack>
   );
 };
 
 interface GridProps {
   results: TVShow[];
+  handleNav: (id: number) => void;
 }
 
-const GridActual = ({ results }: GridProps) => {
+const GridActual = ({ results, handleNav }: GridProps) => {
   return (
     <Grid
+      component={motion.div}
       container
       spacing={{ xs: 3, sm: 2.5, lg: 3 }}
+      rowSpacing={1}
       sx={{ px: 2 }}
-      columns={{ lg: 5 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
     >
       {results.map((show) => (
         <Grid
-          size={{ xs: 6, sm: 4, md: 3, lg: 1 }}
+          size={{ xs: 6, sm: 4, md: 3, lg: 2 }}
           key={show.id}
           sx={{
             color: "primary.main",
@@ -70,7 +117,7 @@ const GridActual = ({ results }: GridProps) => {
             alignItems: "center",
           }}
         >
-          <TVCard film={show}></TVCard>
+          <TVCard film={show} hanleNav={handleNav}></TVCard>
         </Grid>
       ))}
     </Grid>
@@ -79,20 +126,22 @@ const GridActual = ({ results }: GridProps) => {
 
 interface TVCardProps {
   film: TVShow;
+  hanleNav: (id: number) => void;
 }
 
-const TVCard = ({ film }: TVCardProps) => {
+const TVCard = ({ film, hanleNav }: TVCardProps) => {
   const formattedDate = film.first_air_date
     ? format(new Date(film.first_air_date), "MMMM dd, yyyy")
     : "TBA";
   return (
     <Stack
-      sx={{ width: "85%", height: { xs: "280px" }, alignItems: "start" }}
+      sx={{ width: "95%", height: { xs: "280px" }, alignItems: "start" }}
       spacing={1.2}
     >
       <Box
         component={"img"}
         sx={{ width: "100%", height: "205px", borderRadius: 0.8 }}
+        onClick={() => hanleNav(film.id)}
         src={`https://image.tmdb.org/t/p/w780/${film.poster_path}`}
       ></Box>
 
