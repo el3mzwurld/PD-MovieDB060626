@@ -43,8 +43,8 @@ const TVGrid = () => {
   }, [currentPage, loadMore, isLoading]);
 
   const navigate = useNavigate();
-  const handleNavigate = (movie_id: number) => {
-    navigate(`/movie/${movie_id}`);
+  const handleNavigate = (show_id: number) => {
+    navigate(`/tv/${show_id}`);
   };
   return (
     <Stack
