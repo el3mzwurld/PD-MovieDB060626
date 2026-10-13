@@ -130,7 +130,7 @@ const MoviePage = () => {
                 }}
               >
                 <Typography variant="caption">Title</Typography>
-                {details?.title}
+                {details ? details.title : "No title found"}
               </span>
 
               <span

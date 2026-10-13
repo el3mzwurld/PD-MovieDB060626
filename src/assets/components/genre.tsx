@@ -60,7 +60,6 @@ const Genres = ({ setGenre, filmType }: GenreProps) => {
         height: { xs: "55px", lg: "68px" },
         px: 1,
         py: 0.5,
-        // backgroundColor: "black",
         alignItems: "center",
         overflowX: "auto",
         "&::-webkit-scrollbar": {

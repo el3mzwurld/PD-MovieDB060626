@@ -154,7 +154,7 @@ const TVPage = () => {
               >
                 <Typography variant="caption">Seasons :</Typography>
                 {details
-                  ? `${details.number_of_seasons} ${details.number_of_seasons > 0 ? "seasons" : "season"}`
+                  ? `${details.number_of_seasons} ${details.number_of_seasons > 1 ? "seasons" : "season"}`
                   : "N/A"}
               </span>
 

@@ -6,6 +6,8 @@ import type { Movie } from "../types/appTypes";
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import theme from "../themes/theme";
+
 const MovieGrid = () => {
   const {
     selectedGenre,
@@ -24,6 +26,7 @@ const MovieGrid = () => {
   };
   const observerRef = useRef<HTMLDivElement>(null);
   const PAGE_LIMIT = 6;
+
   useEffect(() => {
     //   watch the bottom div in the component to know when it enters the viewport
     //   logic to add :: tuesday - logic to re-render the grid once current Page >= page limit
@@ -43,7 +46,7 @@ const MovieGrid = () => {
     if (observerRef.current) watcher.observe(observerRef.current);
 
     return () => watcher.disconnect();
-  }, [currentPage, loadMore, isLoading]);
+  }, [currentPage, loadMore, totalPages, isLoading]);
   return (
     <Stack
       sx={{
@@ -119,14 +122,15 @@ const MovieCard = ({ film, handleNav }: MovieCardProps) => {
         width: { xs: "100%", lg: "90%" },
         height: { xs: "280px" },
         alignItems: "start",
+        cursor: "pointer",
       }}
       spacing={1.2}
+      onClick={() => handleNav(film.id)}
     >
       <Box
         component={"img"}
         sx={{ width: "100%", height: "205px", borderRadius: 0.8 }}
         src={`https://image.tmdb.org/t/p/w780/${film.poster_path}`}
-        onClick={() => handleNav(film.id)}
       ></Box>
 
       {/* info */}

@@ -11,7 +11,6 @@ export type Response<T> = {
   total_pages: number;
   total_results: number;
 };
-
 // movie type
 export type Movie = {
   id: number;
@@ -74,7 +73,6 @@ export type TVShowDetails = {
   homepage: string | null;
   episode_run_time: number[];
 };
-
 // cast member type, used for both movies and tv shows
 export type CastMember = {
   id: number;

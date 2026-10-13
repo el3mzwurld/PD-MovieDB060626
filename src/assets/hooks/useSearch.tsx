@@ -12,7 +12,7 @@ export const useSearch = (query: string) => {
     signal?: AbortSignal,
   ) => {
     setIsLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const data = await tmdbFetch<Response<SearchResult>>(
