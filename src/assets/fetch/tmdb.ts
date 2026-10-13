@@ -1,4 +1,4 @@
-const API_KEY = import.meta.env.API_KEY;
+const API_KEY = import.meta.env.VITE_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/";
 
 export async function tmdbFetch<T>(
@@ -13,10 +13,14 @@ export async function tmdbFetch<T>(
     url.searchParams.set(key, value);
   });
 
+  if (!API_KEY) {
+    console.error("API_KEY is undefined or empty!");
+  }
+
   const response = await fetch(url.toString(), {
     method: "GET",
     headers: {
-      accept: "applications/json",
+      accept: "application/json",
       Authorization: `Bearer ${API_KEY}`,
     },
     signal,
